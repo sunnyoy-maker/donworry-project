@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>돈워리 프로젝트</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 사이드바 네비 -->
+    <nav id="sidebar">
+      <div class="logo">🤑 돈워리 프로젝트</div>
+      <ul>
+        <li data-section="dashboard" class="active">📊 대시보드</li>
+        <li data-section="monthly">📅 월별 기록</li>
+        <li data-section="basic">👤 기본정보</li>
+        <li data-section="assets">💰 자산</li>
+        <li data-section="loans">🏦 대출</li>
+        <li data-section="fixed">📋 고정비</li>
+        <li data-section="spending">💳 카드/소비</li>
+        <li data-section="income">💵 수입</li>
+        <li data-section="goals">🎯 목표</li>
+        <li data-section="simulation">🔮 시뮬레이션</li>
+      </ul>
+      <div class="sidebar-bottom">
+        <button id="btn-share">🔗 링크 공유</button>
+        <button id="btn-reset">🗑 초기화</button>
+      </div>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <main id="content">
+      <!-- ① 대시보드 -->
+      <section id="section-dashboard" class="section active">
+        <div class="section-header">
+          <h1>📊 재무 현황</h1>
+          <div id="today-tip" class="today-tip">💬 로딩 중...</div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card card-net-worth">
+            <div class="card-label">순자산</div>
+            <div class="card-value" id="dash-net-worth">-</div>
+            <div class="card-sub" id="dash-net-trend"></div>
+          </div>
+          <div class="card">
+            <div class="card-label">총 자산</div>
+            <div class="card-value" id="dash-total-assets">-</div>
+          </div>
+          <div class="card">
+            <div class="card-label">총 대출</div>
+            <div class="card-value negative" id="dash-total-loans">-</div>
+          </div>
+          <div class="card">
+            <div class="card-label">월 현금흐름</div>
+            <div class="card-value" id="dash-cashflow">-</div>
+          </div>
+          <div class="card">
+            <div class="card-label">월 총수입</div>
+            <div class="card-value" id="dash-income">-</div>
+          </div>
+          <div class="card">
+            <div class="card-label">월 총지출</div>
+            <div class="card-value negative" id="dash-expenses">-</div>
+          </div>
+        </div>
+
+        <!-- 위험도 -->
+        <div class="card risk-card">
+          <h3>재무 위험도</h3>
+          <div id="risk-indicator" class="risk-indicator">
+            <div class="risk-dot safe active">🟢 안전</div>
+            <div class="risk-dot warning">🟡 주의</div>
+            <div class="risk-dot danger">🔴 위험</div>
+          </div>
+          <div id="risk-reason" class="risk-reason">데이터를 입력해주세요.</div>
+        </div>
+
+        <!-- 순자산 그래프 -->
+        <div class="card">
+          <h3>📈 순자산 예상 추이</h3>
+          <canvas id="chart-networth" height="200"></canvas>
+        </div>
+
+        <!-- AI 분석 -->
+        <div class="card ai-card">
+          <div class="ai-header">
+            <h3>🤖 AI 재무 분석</h3>
+            <button id="btn-ai-analyze" class="btn-primary">분석 시작</button>
+          </div>
+          <div id="ai-api-key-area" class="api-key-area">
+            <input type="password" id="input-api-key" placeholder="Claude API 키 입력 (sk-ant-...)" />
+            <button id="btn-save-api-key" class="btn-sm">저장</button>
+          </div>
+          <div id="ai-result" class="ai-result">
+            <div class="ai-placeholder">API 키를 입력하고 분석을 시작하세요.</div>
+          </div>
+        </div>
+
+        <!-- AI 코치 -->
+        <div class="card ai-card">
+          <div class="ai-header">
+            <h3>🧭 AI 코치</h3>
+            <button id="btn-ai-coach" class="btn-primary">코칭 받기</button>
+          </div>
+          <div id="coach-result" class="ai-result">
+            <div class="ai-placeholder">목표를 입력하면 맞춤 전략을 알려드립니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ① 기본정보 -->
+      <section id="section-basic" class="section">
+        <h1>👤 기본 정보</h1>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>부부 여부</label>
+              <select id="basic-married">
+                <option value="single">미혼/싱글</option>
+                <option value="married">부부</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>내 나이</label>
+              <input type="number" id="basic-age" placeholder="35" />
+            </div>
+            <div class="form-group">
+              <label>직업</label>
+              <input type="text" id="basic-job" placeholder="직장인" />
+            </div>
+            <div class="form-group">
+              <label>내 월 실수령 (만원)</label>
+              <input type="number" id="basic-income" placeholder="300" />
+            </div>
+            <div class="form-group" id="spouse-income-group" style="display:none">
+              <label>배우자 월 실수령 (만원)</label>
+              <input type="number" id="basic-spouse-income" placeholder="250" />
+            </div>
+          </div>
+          <button class="btn-primary btn-save" data-section="basic">저장</button>
+        </div>
+      </section>
+
+      <!-- ② 자산 -->
+      <section id="section-assets" class="section">
+        <h1>💰 자산 현황</h1>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>현금 (만원)</label><input type="number" id="asset-cash" placeholder="0" /></div>
+            <div class="form-group"><label>예금 (만원)</label><input type="number" id="asset-deposit" placeholder="0" /></div>
+            <div class="form-group"><label>적금 (만원)</label><input type="number" id="asset-savings" placeholder="0" /></div>
+            <div class="form-group"><label>청약 (만원)</label><input type="number" id="asset-subscription" placeholder="0" /></div>
+            <div class="form-group"><label>퇴직금 (만원)</label><input type="number" id="asset-retirement" placeholder="0" /></div>
+            <div class="form-group"><label>주식 (만원)</label><input type="number" id="asset-stocks" placeholder="0" /></div>
+            <div class="form-group"><label>ETF (만원)</label><input type="number" id="asset-etf" placeholder="0" /></div>
+            <div class="form-group"><label>코인 (만원)</label><input type="number" id="asset-crypto" placeholder="0" /></div>
+            <div class="form-group"><label>연금 (만원)</label><input type="number" id="asset-pension" placeholder="0" /></div>
+            <div class="form-group"><label>전세보증금 (만원)</label><input type="number" id="asset-jeonse" placeholder="0" /></div>
+            <div class="form-group"><label>부동산 (만원)</label><input type="number" id="asset-realestate" placeholder="0" /></div>
+            <div class="form-group"><label>자동차 (만원)</label><input type="number" id="asset-car" placeholder="0" /></div>
+          </div>
+          <div class="total-bar">
+            <span>총 자산</span>
+            <span id="total-assets-calc" class="total-value">0 만원</span>
+          </div>
+          <button class="btn-primary btn-save" data-section="assets">저장</button>
+        </div>
+      </section>
+
+      <!-- 📅 월별 기록 -->
+      <section id="section-monthly" class="section">
+        <h1>📅 월별 기록</h1>
+        <p class="section-desc">매달 데이터를 업데이트한 뒤 이 달 기록을 저장하세요. 순자산이 얼마나 회복되고 있는지 추적합니다.</p>
+        <div class="card">
+          <div class="monthly-save-area">
+            <div>
+              <div class="monthly-current-label">이번 달 스냅샷</div>
+              <div id="monthly-preview" class="monthly-preview">데이터를 먼저 입력해주세요.</div>
+            </div>
+            <button id="btn-save-monthly" class="btn-primary">📌 이번 달 기록 저장</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>📊 월별 순자산 추이</h3>
+          <canvas id="chart-monthly" height="180"></canvas>
+        </div>
+        <div class="card" id="monthly-records-card">
+          <h3>기록 내역</h3>
+          <div id="monthly-records-list">
+            <div class="monthly-empty">아직 기록이 없습니다. 첫 달 기록을 저장해보세요!</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ③ 대출 -->
+      <section id="section-loans" class="section">
+        <h1>🏦 대출 현황</h1>
+        <div class="card" style="overflow-x:auto; padding: 0;">
+          <table class="loan-table" id="loans-table">
+            <thead>
+              <tr>
+                <th>대출명</th>
+                <th>원금 (만원)</th>
+                <th>이자율 (%)</th>
+                <th>월 원금상환</th>
+                <th>월 이자</th>
+                <th>월 원리금</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="loans-tbody"></tbody>
+            <tfoot>
+              <tr class="loan-total-row">
+                <td>합계</td>
+                <td id="tf-principal">-</td>
+                <td id="tf-avgrate">-</td>
+                <td id="tf-monthly-principal">-</td>
+                <td id="tf-monthly-interest">-</td>
+                <td id="tf-monthly-total">-</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button id="btn-add-loan" class="btn-outline">+ 대출 추가</button>
+        <button class="btn-primary btn-save" data-section="loans">저장</button>
+      </section>
+
+      <!-- ④ 고정비 -->
+      <section id="section-fixed" class="section">
+        <h1>📋 고정비</h1>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>월세 (만원)</label><input type="number" id="fixed-rent" placeholder="0" /></div>
+            <div class="form-group"><label>관리비 (만원)</label><input type="number" id="fixed-mgmt" placeholder="0" /></div>
+            <div class="form-group"><label>공과금 (만원)</label><input type="number" id="fixed-utility" placeholder="0" /></div>
+            <div class="form-group"><label>통신비 (만원)</label><input type="number" id="fixed-telecom" placeholder="0" /></div>
+            <div class="form-group"><label>보험 (만원)</label><input type="number" id="fixed-insurance" placeholder="0" /></div>
+            <div class="form-group"><label>자동차 (만원)</label><input type="number" id="fixed-car" placeholder="0" /></div>
+            <div class="form-group"><label>교통 (만원)</label><input type="number" id="fixed-transport" placeholder="0" /></div>
+            <div class="form-group"><label>교육 (만원)</label><input type="number" id="fixed-education" placeholder="0" /></div>
+            <div class="form-group"><label>구독서비스 (만원)</label><input type="number" id="fixed-subscription" placeholder="0" /></div>
+            <div class="form-group"><label>기타 (만원)</label><input type="number" id="fixed-other" placeholder="0" /></div>
+          </div>
+          <div class="total-bar">
+            <span>총 고정비</span>
+            <span id="total-fixed-calc" class="total-value">0 만원</span>
+          </div>
+          <button class="btn-primary btn-save" data-section="fixed">저장</button>
+        </div>
+      </section>
+
+      <!-- ⑤ 카드/소비 -->
+      <section id="section-spending" class="section">
+        <h1>💳 이번 달 소비 (카테고리별)</h1>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>🍚 식비 (만원)</label><input type="number" id="spend-food" placeholder="0" /></div>
+            <div class="form-group"><label>🛵 배달 (만원)</label><input type="number" id="spend-delivery" placeholder="0" /></div>
+            <div class="form-group"><label>☕ 카페 (만원)</label><input type="number" id="spend-cafe" placeholder="0" /></div>
+            <div class="form-group"><label>🛍 쇼핑 (만원)</label><input type="number" id="spend-shopping" placeholder="0" /></div>
+            <div class="form-group"><label>📦 쿠팡 (만원)</label><input type="number" id="spend-coupang" placeholder="0" /></div>
+            <div class="form-group"><label>🧹 생활용품 (만원)</label><input type="number" id="spend-household" placeholder="0" /></div>
+            <div class="form-group"><label>🎬 문화 (만원)</label><input type="number" id="spend-culture" placeholder="0" /></div>
+            <div class="form-group"><label>✈️ 여행 (만원)</label><input type="number" id="spend-travel" placeholder="0" /></div>
+            <div class="form-group"><label>👕 의류 (만원)</label><input type="number" id="spend-clothes" placeholder="0" /></div>
+            <div class="form-group"><label>🏥 병원 (만원)</label><input type="number" id="spend-medical" placeholder="0" /></div>
+            <div class="form-group"><label>기타 (만원)</label><input type="number" id="spend-other" placeholder="0" /></div>
+          </div>
+          <div class="total-bar">
+            <span>총 소비</span>
+            <span id="total-spending-calc" class="total-value">0 만원</span>
+          </div>
+          <button class="btn-primary btn-save" data-section="spending">저장</button>
+        </div>
+
+        <!-- 소비 분석 -->
+        <div class="card" id="spending-analysis-card" style="display:none">
+          <h3>📊 소비 비율 분석</h3>
+          <div id="spending-analysis"></div>
+          <canvas id="chart-spending" height="250"></canvas>
+        </div>
+      </section>
+
+      <!-- ⑥ 수입 -->
+      <section id="section-income" class="section">
+        <h1>💵 수입 현황</h1>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>월급 (만원)</label><input type="number" id="income-salary" placeholder="0" /></div>
+            <div class="form-group"><label>성과급 (만원, 연)</label><input type="number" id="income-bonus" placeholder="0" /></div>
+            <div class="form-group"><label>사업 (만원)</label><input type="number" id="income-business" placeholder="0" /></div>
+            <div class="form-group"><label>부업 (만원)</label><input type="number" id="income-side" placeholder="0" /></div>
+            <div class="form-group"><label>임대 (만원)</label><input type="number" id="income-rent" placeholder="0" /></div>
+            <div class="form-group"><label>기타 (만원)</label><input type="number" id="income-other" placeholder="0" /></div>
+          </div>
+          <div class="income-summary">
+            <div class="total-row"><span>월 평균 수입</span><span id="income-avg" class="total-value">0 만원</span></div>
+            <div class="total-row"><span>월 최소 수입</span><span id="income-min">0 만원</span></div>
+            <div class="total-row"><span>월 최대 수입</span><span id="income-max">0 만원</span></div>
+          </div>
+          <button class="btn-primary btn-save" data-section="income">저장</button>
+        </div>
+      </section>
+
+      <!-- ⑦ 목표 -->
+      <section id="section-goals" class="section">
+        <h1>🎯 재무 목표</h1>
+        <div class="card">
+          <p class="section-desc">달성하고 싶은 목표를 선택하고 세부 내용을 입력하세요.</p>
+          <div class="goals-grid" id="goals-grid">
+            <label class="goal-item"><input type="checkbox" value="jeonse" /><span>🏠 전세</span></label>
+            <label class="goal-item"><input type="checkbox" value="wedding" /><span>💍 결혼</span></label>
+            <label class="goal-item"><input type="checkbox" value="baby" /><span>👶 출산</span></label>
+            <label class="goal-item"><input type="checkbox" value="house" /><span>🏡 내집마련</span></label>
+            <label class="goal-item"><input type="checkbox" value="newcar" /><span>🚗 차량교체</span></label>
+            <label class="goal-item"><input type="checkbox" value="payloan" /><span>💳 대출상환</span></label>
+            <label class="goal-item"><input type="checkbox" value="100m" /><span>💯 1억 만들기</span></label>
+            <label class="goal-item"><input type="checkbox" value="retire" /><span>🌴 조기은퇴</span></label>
+          </div>
+          <div id="goal-details" class="goal-details"></div>
+          <button class="btn-primary btn-save" data-section="goals">저장</button>
+        </div>
+      </section>
+
+      <!-- ⑨ 시뮬레이션 -->
+      <section id="section-simulation" class="section">
+        <h1>🔮 시뮬레이션</h1>
+        <p class="section-desc">만약에... 시나리오를 돌려보세요.</p>
+
+        <div class="sim-grid">
+          <!-- 대출 상환 -->
+          <div class="card sim-card">
+            <h3>💳 대출 일부 상환</h3>
+            <div class="form-group">
+              <label>상환할 대출</label>
+              <select id="sim-loan-select"></select>
+            </div>
+            <div class="form-group">
+              <label>상환 금액 (만원)</label>
+              <input type="number" id="sim-repay-amount" placeholder="2000" />
+            </div>
+            <button class="btn-primary" onclick="runSimRepay()">계산하기</button>
+            <div id="sim-repay-result" class="sim-result"></div>
+          </div>
+
+          <!-- 소비 절감 -->
+          <div class="card sim-card">
+            <h3>✂️ 소비 절감</h3>
+            <div class="form-group">
+              <label>카테고리</label>
+              <select id="sim-spend-category">
+                <option value="delivery">배달</option>
+                <option value="shopping">쇼핑</option>
+                <option value="cafe">카페</option>
+                <option value="coupang">쿠팡</option>
+                <option value="culture">문화</option>
+                <option value="clothes">의류</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>절감 금액 (만원)</label>
+              <input type="number" id="sim-save-amount" placeholder="20" />
+            </div>
+            <div class="form-group">
+              <label>기간 (년)</label>
+              <input type="number" id="sim-save-years" placeholder="3" value="3" />
+            </div>
+            <button class="btn-primary" onclick="runSimSave()">계산하기</button>
+            <div id="sim-save-result" class="sim-result"></div>
+          </div>
+
+          <!-- 자산 매각 -->
+          <div class="card sim-card">
+            <h3>🚗 자산 매각</h3>
+            <div class="form-group">
+              <label>매각 자산</label>
+              <select id="sim-sell-asset">
+                <option value="car">자동차</option>
+                <option value="stocks">주식</option>
+                <option value="etf">ETF</option>
+                <option value="crypto">코인</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>매각 금액 (만원)</label>
+              <input type="number" id="sim-sell-amount" placeholder="1500" />
+            </div>
+            <div class="form-group">
+              <label>용도</label>
+              <select id="sim-sell-use">
+                <option value="loan">대출 상환</option>
+                <option value="savings">저축</option>
+                <option value="invest">재투자</option>
+              </select>
+            </div>
+            <button class="btn-primary" onclick="runSimSell()">계산하기</button>
+            <div id="sim-sell-result" class="sim-result"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 토스트 -->
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
